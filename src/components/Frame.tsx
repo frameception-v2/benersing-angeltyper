@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useState, useRef, Suspense } from "react";
 import sdk, {
   AddFrame,
   SignIn as SignInCore,
@@ -356,6 +356,7 @@ function PersonalityCard({ title, description }: { title: string; description: s
 
 function ResultFrame() {
   const { address } = useAccount();
+  const sdk = useRef(require("@farcaster/frame-sdk")).current;
   const [isCopied, setIsCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [ogImageUrl, setOgImageUrl] = useState<string>('');
@@ -564,7 +565,7 @@ function LoadingSkeleton() {
 export default function Frame() {
   const [isClient, setIsClient] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const [context, setContext] = useState<sdk.FrameContext>();
+  const [context, setContext] = useState<sdk.FrameContext | undefined>();
   const [isSessionValid, setIsSessionValid] = useState(false);
 
   useEffect(() => {
