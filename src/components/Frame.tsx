@@ -155,6 +155,54 @@ function ProcessingFrame() {
   );
 }
 
+function PersonalityCard({ title, description }: { title: string; description: string }) {
+  return (
+    <Card className="w-full aspect-video bg-gradient-to-br from-purple-50 to-pink-50">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-green-600">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm text-neutral-600">
+        {description}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ResultFrame() {
+  const handleShare = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `Just discovered my Angel Investor Archetype via @hellno's frame!\n\n${window.location.href}`
+      );
+    } catch (err) {
+      console.error('Failed to share:', err);
+    }
+  }, []);
+
+  return (
+    <div className="w-full h-full flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4" style={{ gridTemplateRows: '1fr auto' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="aspect-square bg-purple-50 rounded-xl p-4 flex items-center justify-center">
+            <span className="text-lg font-semibold text-purple-600">Radar Chart</span>
+          </div>
+          <PersonalityCard
+            title="Concentrated Investor"
+            description="Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."
+          />
+        </div>
+        
+        <Button 
+          onClick={handleShare}
+          className="w-full bg-green-600 hover:bg-green-700 h-12"
+        >
+          Share My Archetype
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function EntryFrame() {
   // Session management with TTL validation
   useEffect(() => {
@@ -304,10 +352,12 @@ export default function Frame() {
     >
       <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
         <div className="w-full h-full flex flex-col">
-          {!(typeof window !== 'undefined' && window.location.search.includes('state=processing')) ? (
+          {!(typeof window !== 'undefined' && window.location.search.includes('state=')) ? (
             <EntryFrame />
-          ) : (
+          ) : window.location.search.includes('state=processing') ? (
             <ProcessingFrame />
+          ) : (
+            <ResultFrame />
           )}
         </div>
       </div>
