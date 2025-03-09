@@ -156,6 +156,99 @@ function ProcessingFrame() {
   );
 }
 
+function RadarChart({ scores }: { scores: { spray: number; friends: number; concentrated: number } }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+  const [currentScores, setCurrentScores] = useState([0, 0, 0]);
+
+  useEffect(() => {
+    const animate = (startTime: number) => {
+      const duration = 1000;
+      const animateFrame = (timestamp: number) => {
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        setCurrentScores([
+          progress * scores.spray,
+          progress * scores.friends,
+          progress * scores.concentrated
+        ]);
+
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animateFrame);
+        }
+      };
+      animationRef.current = requestAnimationFrame(animateFrame);
+    };
+
+    const startTime = performance.now();
+    animate(startTime);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [scores]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(canvas.width, canvas.height) * 0.35;
+    const angles = [-Math.PI / 2, Math.PI / 6, (5 * Math.PI) / 6];
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw grid lines
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 1;
+    for (let i = 0.25; i <= 1; i += 0.25) {
+      ctx.beginPath();
+      for (const angle of angles) {
+        const x = centerX + Math.cos(angle) * radius * i;
+        const y = centerY + Math.sin(angle) * radius * i;
+        ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    // Draw data polygon
+    ctx.beginPath();
+    currentScores.forEach((score, i) => {
+      const scaledScore = score * radius;
+      const x = centerX + Math.cos(angles[i]) * scaledScore;
+      const y = centerY + Math.sin(angles[i]) * scaledScore;
+      ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+
+    // Create gradient fill
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, 'rgba(192, 38, 211, 0.2)');
+    gradient.addColorStop(1, 'rgba(239, 68, 68, 0.2)');
+
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    ctx.strokeStyle = '#c026d3';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }, [currentScores]);
+
+  return (
+    <canvas 
+      ref={canvasRef}
+      className="w-full h-full aspect-square max-w-[300px] mx-auto"
+      width={300}
+      height={300}
+    />
+  );
+}
+
 function PersonalityCard({ title, description }: { title: string; description: string }) {
   return (
     <Card className="w-full aspect-video bg-gradient-to-br from-purple-50 to-pink-50">
@@ -191,9 +284,7 @@ function ResultFrame() {
     <div className="w-full h-full flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4" style={{ gridTemplateRows: '1fr auto' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="aspect-square bg-purple-50 rounded-xl p-4 flex items-center justify-center">
-            <span className="text-lg font-semibold text-purple-600">Radar Chart</span>
-          </div>
+          <RadarChart scores={{ spray: 0.8, friends: 0.4, concentrated: 0.6 }} />
           <PersonalityCard
             title="Concentrated Investor"
             description="Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."
