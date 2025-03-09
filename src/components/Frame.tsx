@@ -22,19 +22,43 @@ import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
-function ExampleCard() {
+function EntryFrame() {
+  // Generate or retrieve session ID with 24h TTL
+  useEffect(() => {
+    const existingSession = localStorage.getItem('fcSession');
+    if (!existingSession) {
+      const newSession = {
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        expiresAt: Date.now() + 86400000 // 24 hours
+      };
+      localStorage.setItem('fcSession', JSON.stringify(newSession));
+    }
+  }, []);
+
+  const handleAnalyze = () => {
+    // Update URL for state transition
+    window.location.href = `${window.location.href}?state=processing`;
+  };
+
   return (
-    <Card className="h-full">
-      <CardHeader className="p-4">
-        <CardTitle className="text-lg">Welcome to the Frame Template</CardTitle>
-        <CardDescription className="text-sm">
-          This is an example card that you can customize or remove
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-4 flex-1">
-        <Label>Place content in a Card here.</Label>
-      </CardContent>
-    </Card>
+    <div className="h-full w-full flex flex-col items-center justify-center p-6">
+      <div className="flex flex-col items-center gap-6 max-w-[300px]">
+        <h1 className="text-3xl font-bold text-center text-primary">
+          {PROJECT_TITLE}
+        </h1>
+        
+        <div className="w-full flex flex-col gap-4">
+          <button 
+            onClick={handleAnalyze}
+            className="w-full py-4 px-8 bg-purple-600 hover:bg-purple-700 text-white rounded-xl 
+                     transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            Analyze My Casts
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -138,7 +162,7 @@ export default function Frame() {
     >
       <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
         <div className="w-full h-full flex flex-col">
-          <ExampleCard />
+          <EntryFrame />
         </div>
       </div>
     </div>
