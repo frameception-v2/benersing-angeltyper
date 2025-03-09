@@ -46,6 +46,24 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
+        <style>{`
+          :root {
+            font-size: clamp(1rem, 0.875rem + 0.5vw, 1.25rem);
+            line-height: 1.5;
+          }
+          
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          body {
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            overflow-x: hidden;
+          }
+        `}</style>
         <ThemeProviderClient>
           <Providers session={session}>
             <SidebarProvider>
