@@ -14,6 +14,7 @@ import {
   CardContent,
 } from "~/components/ui/card";
 
+import { useAccount } from "wagmi";
 import { config } from "~/components/providers/WagmiProvider";
 import { truncateAddress } from "~/lib/truncateAddress";
 import { base, optimism } from "wagmi/chains";
@@ -551,9 +552,14 @@ function LoadingSkeleton() {
 }
 
 export default function Frame() {
+  const [isClient, setIsClient] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<sdk.FrameContext>();
   const [isSessionValid, setIsSessionValid] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const [added, setAdded] = useState(false);
 
