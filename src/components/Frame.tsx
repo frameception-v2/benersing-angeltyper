@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef, Suspense } from "react";
+import { useEffect, useCallback, useState, useRef, Suspense, useMemo } from "react";
 import sdk, {
   AddFrame,
   SignIn as SignInCore,
   type Context,
+  type FrameContext,
 } from "@farcaster/frame-sdk";
 import {
   Card,
@@ -356,10 +357,9 @@ function PersonalityCard({ title, description }: { title: string; description: s
 
 function ResultFrame() {
   const { address } = useAccount();
-  const sdk = useRef(require("@farcaster/frame-sdk")).current;
   const [isCopied, setIsCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
-  const [ogImageUrl, setOgImageUrl] = useState<string>('');
+  const sdk = useMemo(() => typeof window !== 'undefined' ? require("@farcaster/frame-sdk") : null, []);
   const [isClient, setIsClient] = useState(false);
 
   const generateOgImage = useCallback(async (archetype: string) => {
@@ -560,12 +560,14 @@ export default function Frame() {
     try {
       await sdk.actions.addFrame();
     } catch (error) {
-      if (error instanceof AddFrame.RejectedByUser) {
-        setAddFrameResult(`Not added: ${error.message}`);
-      }
-
-      if (error instanceof AddFrame.InvalidDomainManifest) {
-        setAddFrameResult(`Not added: ${error.message}`);
+      if (error instanceof Error) {
+        if (error.message.includes('User rejected')) {
+          setAddFrameResult('User rejected frame addition');
+        } else if (error.message.includes('Invalid domain manifest')) {
+          setAddFrameResult('Invalid domain configuration');
+        } else {
+          setAddFrameResult(`Error: ${error.message}`);
+        }
       }
 
       setAddFrameResult(`Error: ${error}`);
