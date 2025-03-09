@@ -359,7 +359,7 @@ function ResultFrame() {
   const { address } = useAccount();
   const [isCopied, setIsCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
-  const sdk = useMemo(() => typeof window !== 'undefined' ? require("@farcaster/frame-sdk") : null, []);
+  const sdk = useMemo(() => typeof window !== 'undefined' ? require("@farcaster/frame-sdk").default : null, []);
   const [isClient, setIsClient] = useState(false);
 
   const generateOgImage = useCallback(async (archetype: string) => {
@@ -406,8 +406,8 @@ function ResultFrame() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <RadarChart scores={{ sprayAndPray: 0.8, friends: 0.4, concentrated: 0.6 }} />
           <PersonalityCard
-            title={sessionStorage.getItem('analysisResults.archetype') || "Concentrated Investor"}
-            description={sessionStorage.getItem('analysisResults.archetypeDescription') || "Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."}
+            title={JSON.parse(sessionStorage.getItem('analysisResults')?.archetype || "Concentrated Investor"}
+            description={JSON.parse(sessionStorage.getItem('analysisResults')?.archetypeDescription || "Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."}
           />
         </div>
         

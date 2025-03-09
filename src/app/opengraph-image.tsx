@@ -70,7 +70,7 @@ async function initializeFonts() {
   }
 }
 
-export default async function Image() {
+export default async function Image({ params }: { params: URLSearchParams }) {
   const options = await initializeFonts();
 
   const BACKGROUND_GRADIENT_START = "#c026d3";
@@ -116,7 +116,7 @@ Please refer to Satori’s documentation for a list of supported HTML and CSS fe
         <h3 tw="text-3xl font-normal mt-8">{params.get('description') || PROJECT_DESCRIPTION}</h3>
         {params.get('address') && (
           <div tw="absolute bottom-8 right-8 text-xl bg-black/30 px-4 py-2 rounded-full">
-            {truncateAddress(params.get('address')}
+            {truncateAddress(params.get('address') || '')}
           </div>
         )}
       </div>
