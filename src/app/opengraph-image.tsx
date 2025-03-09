@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { PROJECT_TITLE, PROJECT_DESCRIPTION } from "~/lib/constants";
+import { truncateAddress } from "~/lib/truncateAddress";
 import { readFileSync } from "fs";
 import { join } from "path";
 

@@ -406,8 +406,8 @@ function ResultFrame() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <RadarChart scores={{ sprayAndPray: 0.8, friends: 0.4, concentrated: 0.6 }} />
           <PersonalityCard
-            title={sessionStorage.getItem('archetype') || "Concentrated Investor"}
-            description={sessionStorage.getItem('archetypeDescription') || "Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."}
+            title={sessionStorage.getItem('analysisResults.archetype') || "Concentrated Investor"}
+            description={sessionStorage.getItem('analysisResults.archetypeDescription') || "Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."}
           />
         </div>
         
