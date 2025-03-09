@@ -168,13 +168,20 @@ function PersonalityCard({ title, description }: { title: string; description: s
 }
 
 function ResultFrame() {
+  const [isCopied, setIsCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+
   const handleShare = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(
         `Just discovered my Angel Investor Archetype via @hellno's frame!\n\n${window.location.href}`
       );
+      setIsCopied(true);
+      setCopyError(null);
+      setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to share:', err);
+      setCopyError('Failed to copy to clipboard - please try again');
+      console.error('Share failed:', err);
     }
   }, []);
 
@@ -191,12 +198,27 @@ function ResultFrame() {
           />
         </div>
         
-        <Button 
-          onClick={handleShare}
-          className="w-full bg-green-600 hover:bg-green-700 h-12"
-        >
-          Share My Archetype
-        </Button>
+        <div className="space-y-2">
+          <Button 
+            onClick={handleShare}
+            className="w-full bg-green-600 hover:bg-green-700 h-12"
+            disabled={isCopied}
+          >
+            {isCopied ? (
+              <span className="flex items-center gap-2">
+                <CheckIcon className="h-4 w-4" />
+                Copied!
+              </span>
+            ) : (
+              "Share My Archetype"
+            )}
+          </Button>
+          {copyError && (
+            <FormMessage className="text-center text-sm">
+              {copyError}
+            </FormMessage>
+          )}
+        </div>
       </div>
     </div>
   );
