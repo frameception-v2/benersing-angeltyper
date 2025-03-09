@@ -29,29 +29,47 @@ function ProcessingFrame() {
   const animationRef = useRef<number>();
 
   useEffect(() => {
-    const animate = (startTime: number) => {
-      const duration = 8000; // 8 seconds
-      const animateFrame = (timestamp: number) => {
-        const elapsed = timestamp - startTime;
-        const newProgress = Math.min(elapsed / duration, 1);
-        setProgress(newProgress);
+    const simulateAnalysis = async () => {
+      try {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const startTime = performance.now();
+        
+        // Simulate API call with possible error
+        await new Promise((resolve, reject) => setTimeout(() => {
+          // 30% chance of simulated error
+          if (Math.random() < 0.3) {
+            reject(new Error('Analysis failed: Unable to process casts'));
+          } else {
+            resolve(true);
+          }
+        }, 4000));
 
-        if (newProgress < 1) {
-          animationRef.current = requestAnimationFrame(() => animateFrame(timestamp));
+        const animate = (startTime: number) => {
+          const duration = 4000; // Reduced to 4s since we already waited 4s
+          const animateFrame = (timestamp: number) => {
+            const elapsed = timestamp - startTime;
+            const newProgress = Math.min(elapsed / duration, 1);
+            setProgress(newProgress);
+
+            if (newProgress < 1) {
+              animationRef.current = requestAnimationFrame(() => animateFrame(timestamp));
+            }
+          };
+          
+          animationRef.current = requestAnimationFrame(animateFrame);
+        };
+
+        if (!prefersReducedMotion) {
+          animate(startTime);
+        } else {
+          setProgress(1);
         }
-      };
-      
-      animationRef.current = requestAnimationFrame(animateFrame);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to analyze casts');
+      }
     };
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const startTime = performance.now();
-    
-    if (!prefersReducedMotion) {
-      animate(startTime);
-    } else {
-      setProgress(1);
-    }
+    simulateAnalysis();
 
     return () => {
       if (animationRef.current) {
@@ -106,12 +124,32 @@ function ProcessingFrame() {
         height={200}
         className="w-[100px] h-[100px] sm:w-[150px] sm:h-[150px]"
       />
-      <div className="text-center space-y-2">
-        <p className="text-lg font-medium">Analyzing your casts</p>
-        <p className="text-sm text-neutral-500">
-          {Math.floor(progress * 100)}% complete
-        </p>
-      </div>
+      {error ? (
+        <Card className="text-center space-y-4 p-4 max-w-[300px]">
+          <CardHeader>
+            <CardTitle className="text-red-600">Analysis Error</CardTitle>
+            <CardDescription>{error}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={() => {
+                setError(null);
+                setProgress(0);
+              }}
+              variant="destructive"
+            >
+              Retry Analysis
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="text-center space-y-2">
+          <p className="text-lg font-medium">Analyzing your casts</p>
+          <p className="text-sm text-neutral-500">
+            {Math.floor(progress * 100)}% complete
+          </p>
+        </div>
+      )}
     </div>
   );
 }
