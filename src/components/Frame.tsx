@@ -493,9 +493,49 @@ function EntryFrame() {
   );
 }
 
+function ErrorBoundary({ children }: { children: React.ReactNode }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const errorHandler = (error: ErrorEvent) => {
+      setHasError(true);
+      console.error(error);
+    };
+    window.addEventListener('error', errorHandler);
+    return () => window.removeEventListener('error', errorHandler);
+  }, []);
+
+  if (hasError) {
+    return (
+      <div className="text-center p-4 space-y-4">
+        <h2 className="text-red-600 text-lg font-semibold">Something went wrong</h2>
+        <Button 
+          onClick={() => window.location.reload()}
+          variant="destructive"
+        >
+          Reload Frame
+        </Button>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4 w-full max-w-[300px] mx-auto">
+      <div className="h-8 bg-neutral-200 rounded-full w-3/4 mx-auto"></div>
+      <div className="h-4 bg-neutral-200 rounded-full w-1/2 mx-auto"></div>
+      <div className="h-12 bg-neutral-200 rounded-xl mt-8"></div>
+    </div>
+  );
+}
+
 export default function Frame() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<sdk.FrameContext>();
+  const [isSessionValid, setIsSessionValid] = useState(false);
 
   const [added, setAdded] = useState(false);
 
@@ -518,6 +558,13 @@ export default function Frame() {
   }, []);
 
   useEffect(() => {
+    // Check session validity
+    const session = localStorage.getItem('fcSession');
+    if (session) {
+      const { expiresAt } = JSON.parse(session);
+      setIsSessionValid(expiresAt > Date.now());
+    }
+
     const load = async () => {
       const context = await sdk.context;
       if (!context) {
