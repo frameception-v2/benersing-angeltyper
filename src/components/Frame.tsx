@@ -254,16 +254,68 @@ function RadarChart({ scores }: { scores: { sprayAndPray: number; friends: numbe
   );
 }
 
-function PersonalityCard({ title, description }: { title: string; description: string }) {
+function ArchetypeCard({ title, description, isActive }: { title: string; description: string; isActive?: boolean }) {
   return (
-    <Card className="w-full aspect-video bg-gradient-to-br from-purple-50 to-pink-50">
+    <Card className={`w-full aspect-video transition-transform duration-300 ${isActive ? 'scale-100 shadow-lg' : 'scale-90 opacity-75'}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-green-600">{title}</CardTitle>
+        <CardTitle className="text-purple-600">{title}</CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-neutral-600">
         {description}
       </CardContent>
     </Card>
+  );
+}
+
+function CardDeck({ archetypes }: { archetypes: Array<{ title: string; description: string }> }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [offsetX, setOffsetX] = useState(0);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const deltaX = e.touches[0].clientX - touchStartX;
+    setOffsetX(deltaX);
+  }, [touchStartX]);
+
+  const handleTouchEnd = useCallback(() => {
+    const swipeThreshold = 50;
+    if (Math.abs(offsetX) > swipeThreshold) {
+      if (offsetX > 0 && currentIndex > 0) {
+        setCurrentIndex(prev => prev - 1);
+      } else if (offsetX < 0 && currentIndex < archetypes.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+      }
+    }
+    setOffsetX(0);
+  }, [offsetX, currentIndex, archetypes.length]);
+
+  return (
+    <div 
+      className="relative w-full h-full overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {archetypes.map((archetype, index) => (
+        <div
+          key={archetype.title}
+          className="absolute w-full h-full transition-transform duration-300"
+          style={{
+            transform: `translateX(${(index - currentIndex) * 100 + offsetX}%)`,
+            zIndex: index === currentIndex ? 10 : 0
+          }}
+        >
+          <ArchetypeCard
+            {...archetype}
+            isActive={index === currentIndex}
+          />
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -274,7 +326,7 @@ function ResultFrame() {
   const handleShare = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(
-        `Just discovered my Angel Investor Archetype via @hellno's frame!\n\n${window.location.href}`
+        `Just discovered my Angel Investor Archetype via @hellno's frame!\nArchetype: ${archetypes[0].title}\n\n${window.location.href}`
       );
       setIsCopied(true);
       setCopyError(null);
