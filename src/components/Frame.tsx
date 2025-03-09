@@ -17,7 +17,6 @@ import {
 import { config } from "~/components/providers/WagmiProvider";
 import { truncateAddress } from "~/lib/truncateAddress";
 import { base, optimism } from "wagmi/chains";
-import { useSession } from "next-auth/react";
 import { createStore } from "@walletconnect/mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
@@ -254,7 +253,7 @@ function EntryFrame() {
 
 export default function Frame() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const [context, setContext] = useState<Context.FrameContext>();
+  const [context, setContext] = useState<sdk.FrameContext>();
 
   const [added, setAdded] = useState(false);
 
@@ -343,12 +342,12 @@ export default function Frame() {
 
   return (
     <div
-      style={{
-        paddingTop: context?.client.safeAreaInsets?.top ?? 0,
-        paddingBottom: context?.client.safeAreaInsets?.bottom ?? 0,
-        paddingLeft: context?.client.safeAreaInsets?.left ?? 0,
-        paddingRight: context?.client.safeAreaInsets?.right ?? 0,
-      }}
+      style={context?.client?.safeAreaInsets ? {
+        paddingTop: context.client.safeAreaInsets.top,
+        paddingBottom: context.client.safeAreaInsets.bottom,
+        paddingLeft: context.client.safeAreaInsets.left,
+        paddingRight: context.client.safeAreaInsets.right
+      } : {}}
     >
       <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
         <div className="w-full h-full flex flex-col">
