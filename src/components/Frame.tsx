@@ -419,7 +419,7 @@ function ResultFrame() {
           <div className="flex flex-col gap-2">
             <Button 
               onClick={handleShare}
-              className="w-full bg-green-600 hover:bg-green-700 h-12"
+              className="w-full bg-green-600 hover:bg-green-700 min-h-[48px]"
               disabled={isCopied}
             >
             {isCopied ? (
