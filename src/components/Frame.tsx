@@ -23,23 +23,28 @@ import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
 function EntryFrame() {
-  // Generate or retrieve session ID with 24h TTL
+  // Session management with TTL validation
   useEffect(() => {
+    const currentTime = Date.now();
     const existingSession = localStorage.getItem('fcSession');
-    if (!existingSession) {
-      const newSession = {
+    let sessionData = existingSession ? JSON.parse(existingSession) : null;
+
+    // Generate new session if expired or missing
+    if (!sessionData || sessionData.expiresAt < currentTime) {
+      sessionData = {
         id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
-        expiresAt: Date.now() + 86400000 // 24 hours
+        expiresAt: currentTime + 86400000 // 24 hours
       };
-      localStorage.setItem('fcSession', JSON.stringify(newSession));
+      localStorage.setItem('fcSession', JSON.stringify(sessionData));
     }
   }, []);
 
-  const handleAnalyze = () => {
-    // Update URL for state transition
-    window.location.href = `${window.location.href}?state=processing`;
-  };
+  const handleAnalyze = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('state', 'processing');
+    window.history.pushState({}, '', url.toString());
+  }, []);
 
   return (
     <div className="h-full w-full flex flex-col items-center justify-center p-6">
@@ -166,7 +171,13 @@ export default function Frame() {
     >
       <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
         <div className="w-full h-full flex flex-col">
-          <EntryFrame />
+          {!window.location.search.includes('state=processing') ? (
+            <EntryFrame />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <p className="text-lg font-medium">Analyzing your casts...</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
