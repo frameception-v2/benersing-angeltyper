@@ -24,14 +24,14 @@ import { PROJECT_TITLE } from "~/lib/constants";
 
 function ExampleCard() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Welcome to the Frame Template</CardTitle>
-        <CardDescription>
+    <Card className="h-full">
+      <CardHeader className="p-4">
+        <CardTitle className="text-lg">Welcome to the Frame Template</CardTitle>
+        <CardDescription className="text-sm">
           This is an example card that you can customize or remove
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 flex-1">
         <Label>Place content in a Card here.</Label>
       </CardContent>
     </Card>
@@ -136,8 +136,10 @@ export default function Frame() {
         paddingRight: context?.client.safeAreaInsets?.right ?? 0,
       }}
     >
-      <div className="w-[300px] mx-auto py-2 px-2">
-        <ExampleCard />
+      <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
+        <div className="w-full h-full flex flex-col">
+          <ExampleCard />
+        </div>
       </div>
     </div>
   );
