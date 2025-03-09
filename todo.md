@@ -9,7 +9,7 @@ Here's the optimized 20-task checklist following dependencies and implementation
 - [x] 7. Implement session ID generation/retrieval in localStorage (Prompt 2)
 - [x] 8. Set up frame state transitions using URL search params (Prompt 2)
 - [x] 9. Create CastAnalysisService with Neynar API integration (Prompt 3)
-- [ ] 10. Add investment keyword filtering and temporal processing (Prompt 3)
+- [x] 10. Add investment keyword filtering and temporal processing (Prompt 3)
 - [ ] 11. Implement sessionStorage for analysis results (Prompt 3)
 - [ ] 12. Build ProcessingFrame with canvas progress spinner (Prompt 4)
 - [ ] 13. Add simulated progress animation and error fallback (Prompt 4)
