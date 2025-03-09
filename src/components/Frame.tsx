@@ -406,6 +406,18 @@ function ResultFrame() {
               "Share My Archetype"
             )}
           </Button>
+          <Button
+            onClick={() => sdk?.actions?.follow('hellno')}
+            className="w-full bg-blue-600 hover:bg-blue-700 h-12"
+            variant="secondary"
+          >
+            Follow @hellno for updates
+          </Button>
+          {address && (
+            <div className="text-xs text-neutral-500 text-center">
+              Verified: {truncateAddress(address)}
+            </div>
+          )}
           {copyError && (
             <FormMessage className="text-center text-sm">
               {copyError}
