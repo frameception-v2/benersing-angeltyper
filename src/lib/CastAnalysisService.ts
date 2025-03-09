@@ -102,11 +102,32 @@ export class CastAnalysisService {
   }
 
   static saveToSession(results: ProcessedResults) {
-    sessionStorage.setItem('castAnalysis', JSON.stringify(results));
+    const sessionData = localStorage.getItem('fcSession');
+    if (!sessionData) throw new Error('No active session');
+    
+    const storageItem = {
+      sessionId: JSON.parse(sessionData).id,
+      expiresAt: Date.now() + 86400000, // 24 hours
+      data: results
+    };
+    
+    sessionStorage.setItem('castAnalysis', JSON.stringify(storageItem));
   }
 
   static loadFromSession(): ProcessedResults | null {
-    const data = sessionStorage.getItem('castAnalysis');
-    return data ? JSON.parse(data) : null;
+    const sessionData = localStorage.getItem('fcSession');
+    const storedData = sessionStorage.getItem('castAnalysis');
+    
+    if (!sessionData || !storedData) return null;
+    
+    const { sessionId, expiresAt, data } = JSON.parse(storedData);
+    const currentSession = JSON.parse(sessionData);
+    
+    if (sessionId !== currentSession.id || Date.now() > expiresAt) {
+      sessionStorage.removeItem('castAnalysis');
+      return null;
+    }
+    
+    return data;
   }
 }
