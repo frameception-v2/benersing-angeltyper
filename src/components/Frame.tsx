@@ -363,50 +363,30 @@ function ResultFrame() {
   const [isClient, setIsClient] = useState(false);
 
   const generateOgImage = useCallback(async (archetype: string) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 630;
-    const ctx = canvas.getContext('2d');
+    const baseUrl = window.location.origin;
+    const params = new URLSearchParams({
+      title: `${archetype} - ${PROJECT_TITLE}`,
+      description: PROJECT_DESCRIPTION,
+    });
     
-    if (ctx) {
-      // Background gradient
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, '#c026d3');
-      gradient.addColorStop(1, '#ef4444');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Text
-      ctx.fillStyle = 'white';
-      ctx.font = 'bold 48px Nunito';
-      ctx.textAlign = 'center';
-      ctx.fillText('Angel Investor Archetype', canvas.width/2, 150);
-      ctx.font = '64px Nunito';
-      ctx.fillText(archetype, canvas.width/2, 300);
-      
-      if (address) {
-        ctx.font = '24px Nunito';
-        ctx.fillText(`Verified: ${truncateAddress(address)}`, canvas.width/2, 400);
-      }
+    if (address) {
+      params.set('address', address);
     }
-
-    return canvas.toDataURL();
+    
+    return `${baseUrl}/opengraph-image?${params.toString()}`;
   }, [address]);
 
   const handleShare = useCallback(async () => {
     const archetypeTitle = "Concentrated Investor"; // TODO: Replace with dynamic value
     const imageDataUrl = await generateOgImage(archetypeTitle);
-    const castText = `Just discovered my Angel Investor Archetype via @hellno's frame!\nArchetype: ${archetypeTitle}\n\n${window.location.href}`;
+    const castText = `${PROJECT_TITLE}\nArchetype: ${archetypeTitle}\n${window.location.href}`;
 
     try {
-      if (sdk?.actions?.share) {
-        await sdk.actions.share({
-          text: castText,
-          imageUrl: imageDataUrl
-        });
-      } else {
-        await navigator.clipboard.writeText(castText);
-      }
+      await sdk.actions.share({
+        text: castText,
+        imageUrl: imageDataUrl,
+        postUrl: window.location.href
+      });
       setIsCopied(true);
       setCopyError(null);
       setTimeout(() => setIsCopied(false), 2000);
