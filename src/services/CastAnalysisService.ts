@@ -10,6 +10,8 @@ export interface ProcessedCastResult {
   lastInvestmentCastDate: string;
   score: number;
   rawCasts: any[];
+  keywordDistribution: Record<string, number>;
+  monthlyActivity: Array<{ month: string; count: number }>;
 }
 
 export interface NeynarCastResponse {
@@ -56,24 +58,47 @@ export async function fetchCastsByFid(fid: string): Promise<ProcessedCastResult 
 function filterInvestmentCasts(response: NeynarCastResponse): ProcessedCastResult {
   const now = Date.now();
   const twelveMonthsAgo = now - MAX_CAST_AGE_MS;
+  
+  // Enhanced keyword counting and temporal filtering
+  const keywordDistribution: Record<string, number> = {};
+  const monthlyActivity: Record<string, number> = {};
 
   const investmentCasts = response.result.casts.filter(cast => {
     const castDate = new Date(cast.timestamp).getTime();
-    return castDate >= twelveMonthsAgo && 
-           INVESTMENT_KEYWORDS.some(keyword => cast.text.toLowerCase().includes(keyword));
+    const isRecent = castDate >= twelveMonthsAgo;
+    const hasKeyword = INVESTMENT_KEYWORDS.some(keyword => {
+      const hasKey = cast.text.toLowerCase().includes(keyword);
+      if (hasKey) keywordDistribution[keyword] = (keywordDistribution[keyword] || 0) + 1;
+      return hasKey;
+    });
+    
+    // Track monthly activity
+    if (isRecent) {
+      const monthKey = new Date(castDate).toISOString().slice(0, 7);
+      monthlyActivity[monthKey] = (monthlyActivity[monthKey] || 0) + 1;
+    }
+
+    return isRecent && hasKeyword;
   });
 
   const sortedCasts = investmentCasts.sort((a, b) => 
     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
 
+  // Convert monthly activity to sorted array
+  const monthlyActivityArray = Object.entries(monthlyActivity)
+    .map(([month, count]) => ({ month, count }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+
   return {
     totalCasts: response.result.casts.length,
     investmentCastCount: investmentCasts.length,
     firstInvestmentCastDate: sortedCasts[0]?.timestamp || '',
     lastInvestmentCastDate: sortedCasts[sortedCasts.length - 1]?.timestamp || '',
-    score: Math.floor((investmentCasts.length / response.result.casts.length) * 100 || 0,
-    rawCasts: sortedCasts
+    score: Math.floor((investmentCasts.length / response.result.casts.length) * 100) || 0,
+    rawCasts: sortedCasts,
+    keywordDistribution,
+    monthlyActivity: monthlyActivityArray
   };
 }
 
