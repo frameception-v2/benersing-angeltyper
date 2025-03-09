@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import sdk, {
   AddFrame,
   SignIn as SignInCore,
@@ -155,7 +155,7 @@ function EntryFrame() {
                      animate-pulse hover:animate-none focus-visible:outline-none
                      focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2
                      focus-visible:ring-offset-purple-600"
-            style={{ minHeight: '48px' }}
+            style={{ minHeight: 48 }}
           >
             Analyze My Casts
           </button>
@@ -229,7 +229,7 @@ export default function Frame() {
       });
 
       console.log("Calling ready");
-      sdk.actions.ready({});
+      sdk.actions.ready();
 
       // Set up a MIPD Store, and request Providers.
       const store = createStore();
