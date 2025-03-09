@@ -88,6 +88,7 @@ Also, Satori does not guarantee that the SVG will 100% match the browser-rendere
 Please refer to Satori’s documentation for a list of supported HTML and CSS features. https://github.com/vercel/satori#css
 */
   return new ImageResponse(
+    // Add Cache-Control header for static assets
     (
       <div
         tw="h-full w-full flex flex-col justify-center items-center relative"
@@ -97,6 +98,11 @@ Please refer to Satori’s documentation for a list of supported HTML and CSS fe
         <h3 tw="text-4xl font-normal">{PROJECT_DESCRIPTION}</h3>
       </div>
     ),
-    options
+    {
+      ...options,
+      headers: {
+        'Cache-Control': 'public, max-age=86400', // 24 hours
+      }
+    }
   );
 }

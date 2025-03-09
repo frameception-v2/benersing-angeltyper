@@ -165,6 +165,16 @@ function RadarChart({ scores }: { scores: { sprayAndPray: number; friends: numbe
 
   useEffect(() => {
     setIsClient(true);
+    
+    // Check session expiration on load
+    const session = localStorage.getItem('fcSession');
+    if (session) {
+      const { expiresAt } = JSON.parse(session);
+      if (expiresAt < Date.now()) {
+        localStorage.removeItem('fcSession');
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -664,15 +674,23 @@ export default function Frame() {
     >
       <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
         <div className="w-full h-full flex flex-col">
-          {!isClient ? (
-            <div>Loading...</div>
-          ) : !window.location.search.includes('state=') ? (
-            <EntryFrame />
-          ) : window.location.search.includes('state=processing') ? (
-            <ProcessingFrame />
-          ) : (
-            <ResultFrame />
-          )}
+          <ErrorBoundary>
+            {!isClient ? (
+              <LoadingSkeleton />
+            ) : !window.location.search.includes('state=') ? (
+              <Suspense fallback={<LoadingSkeleton />}>
+                <EntryFrame />
+              </Suspense>
+            ) : window.location.search.includes('state=processing') ? (
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ProcessingFrame />
+              </Suspense>
+            ) : (
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ResultFrame />
+              </Suspense>
+            )}
+          </ErrorBoundary>
         </div>
       </div>
     </div>
