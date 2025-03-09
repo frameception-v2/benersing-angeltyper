@@ -32,7 +32,7 @@ function EntryFrame() {
     // Generate new session if expired or missing
     if (!sessionData || sessionData.expiresAt < currentTime) {
       sessionData = {
-        id: crypto.randomUUID(),
+        id: Date.now().toString(36) + Math.random().toString(36).substring(2), // Simple client-side ID
         createdAt: new Date().toISOString(),
         expiresAt: currentTime + 86400000 // 24 hours
       };
@@ -171,7 +171,7 @@ export default function Frame() {
     >
       <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
         <div className="w-full h-full flex flex-col">
-          {!window.location.search.includes('state=processing') ? (
+          {!(typeof window !== 'undefined' && window.location.search.includes('state=processing')) ? (
             <EntryFrame />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
