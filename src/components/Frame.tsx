@@ -18,9 +18,10 @@ import { config } from "~/components/providers/WagmiProvider";
 import { truncateAddress } from "~/lib/truncateAddress";
 import { base, optimism } from "wagmi/chains";
 import { useSession } from "next-auth/react";
-import { createStore } from "mipd";
+import { createStore } from "@walletconnect/mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
+import { Button } from "~/components/ui/button";
 
 function ProcessingFrame() {
   const [progress, setProgress] = useState(0);
