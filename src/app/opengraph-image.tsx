@@ -94,8 +94,30 @@ Please refer to Satori’s documentation for a list of supported HTML and CSS fe
         tw="h-full w-full flex flex-col justify-center items-center relative"
         style={BACKGROUND_GRADIENT_STYLE}
       >
-        <h1 tw="text-9xl text-center font-semibold">{PROJECT_TITLE}</h1>
-        <h3 tw="text-4xl font-normal">{PROJECT_DESCRIPTION}</h3>
+        <h1 tw="text-7xl text-center font-semibold mb-4">{params.get('title') || PROJECT_TITLE}</h1>
+        <div tw="flex flex-col items-center bg-white/10 p-8 rounded-2xl">
+          <div tw="text-3xl mb-4">Investment Style Breakdown</div>
+          <div tw="flex flex-row gap-8">
+            <div tw="flex flex-col items-center">
+              <div tw="text-2xl">{params.get('spray') || '0'}%</div>
+              <div tw="text-xl">Spray & Pray</div>
+            </div>
+            <div tw="flex flex-col items-center">
+              <div tw="text-2xl">{params.get('concentrated') || '0'}%</div>
+              <div tw="text-xl">Concentrated</div>
+            </div>
+            <div tw="flex flex-col items-center">
+              <div tw="text-2xl">{params.get('friends') || '0'}%</div>
+              <div tw="text-xl">Friends</div>
+            </div>
+          </div>
+        </div>
+        <h3 tw="text-3xl font-normal mt-8">{params.get('description') || PROJECT_DESCRIPTION}</h3>
+        {params.get('address') && (
+          <div tw="absolute bottom-8 right-8 text-xl bg-black/30 px-4 py-2 rounded-full">
+            {truncateAddress(params.get('address')}
+          </div>
+        )}
       </div>
     ),
     {

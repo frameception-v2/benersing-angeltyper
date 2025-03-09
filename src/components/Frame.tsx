@@ -363,10 +363,14 @@ function ResultFrame() {
   const [isClient, setIsClient] = useState(false);
 
   const generateOgImage = useCallback(async (archetype: string) => {
+    const analysisResults = JSON.parse(sessionStorage.getItem('analysisResults') || '{}');
     const baseUrl = window.location.origin;
     const params = new URLSearchParams({
-      title: `${archetype} - ${PROJECT_TITLE}`,
-      description: PROJECT_DESCRIPTION,
+      title: `${archetype} Investor`,
+      description: `My investment style breakdown - ${PROJECT_DESCRIPTION}`,
+      spray: Math.round(analysisResults.sprayAndPray * 100),
+      concentrated: Math.round(analysisResults.concentrated * 100),
+      friends: Math.round(analysisResults.friends * 100),
     });
     
     if (address) {
@@ -402,8 +406,8 @@ function ResultFrame() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <RadarChart scores={{ sprayAndPray: 0.8, friends: 0.4, concentrated: 0.6 }} />
           <PersonalityCard
-            title="Concentrated Investor"
-            description="Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."
+            title={sessionStorage.getItem('archetype') || "Concentrated Investor"}
+            description={sessionStorage.getItem('archetypeDescription') || "Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."}
           />
         </div>
         
