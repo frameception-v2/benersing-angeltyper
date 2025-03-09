@@ -250,6 +250,16 @@ function RadarChart({ scores }: { scores: { sprayAndPray: number; friends: numbe
       className="w-full h-full aspect-square max-w-[300px] mx-auto"
       width={300}
       height={300}
+      onTouchStart={(e) => {
+        if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
+          e.preventDefault();
+          // Show hidden details on long press
+          const timeout = setTimeout(() => {
+            // TODO: Implement detail view
+          }, 1000);
+          e.currentTarget.addEventListener('touchend', () => clearTimeout(timeout), {once: true});
+        }
+      }}
     />
   );
 }
@@ -295,10 +305,11 @@ function CardDeck({ archetypes }: { archetypes: Array<{ title: string; descripti
 
   return (
     <div 
-      className="relative w-full h-full overflow-hidden"
+      className="relative w-full h-full overflow-hidden touch-pan-y"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      style={{ touchAction: 'pan-y' }}
     >
       {archetypes.map((archetype, index) => (
         <div
@@ -469,7 +480,14 @@ function EntryFrame() {
   }, []);
 
   return (
-    <div className="h-full w-full flex flex-col items-center justify-center p-6">
+    <div 
+      className="h-full w-full flex flex-col items-center justify-center p-6 transition-transform duration-300"
+      style={{ 
+        transform: typeof window !== 'undefined' && window.DeviceOrientationEvent 
+          ? "rotateZ(var(--tz)) rotateX(var(--tx))" 
+          : undefined 
+      }}
+    >
       <div className="flex flex-col items-center gap-6 max-w-[300px]">
         <h1 className="text-3xl font-bold text-center text-primary">
           {PROJECT_TITLE}
