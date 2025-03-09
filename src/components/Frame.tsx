@@ -320,14 +320,56 @@ function CardDeck({ archetypes }: { archetypes: Array<{ title: string; descripti
 }
 
 function ResultFrame() {
+  const { address } = useAccount();
   const [isCopied, setIsCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
+  const [ogImageUrl, setOgImageUrl] = useState<string>('');
+
+  const generateOgImage = useCallback(async (archetype: string) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 630;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#c026d3');
+      gradient.addColorStop(1, '#ef4444');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Text
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 48px Nunito';
+      ctx.textAlign = 'center';
+      ctx.fillText('Angel Investor Archetype', canvas.width/2, 150);
+      ctx.font = '64px Nunito';
+      ctx.fillText(archetype, canvas.width/2, 300);
+      
+      if (address) {
+        ctx.font = '24px Nunito';
+        ctx.fillText(`Verified: ${truncateAddress(address)}`, canvas.width/2, 400);
+      }
+    }
+
+    return canvas.toDataURL();
+  }, [address]);
 
   const handleShare = useCallback(async () => {
+    const archetypeTitle = "Concentrated Investor"; // TODO: Replace with dynamic value
+    const imageDataUrl = await generateOgImage(archetypeTitle);
+    const castText = `Just discovered my Angel Investor Archetype via @hellno's frame!\nArchetype: ${archetypeTitle}\n\n${window.location.href}`;
+
     try {
-      await navigator.clipboard.writeText(
-        `Just discovered my Angel Investor Archetype via @hellno's frame!\nArchetype: ${archetypes[0].title}\n\n${window.location.href}`
-      );
+      if (sdk?.actions?.share) {
+        await sdk.actions.share({
+          text: castText,
+          imageUrl: imageDataUrl
+        });
+      } else {
+        await navigator.clipboard.writeText(castText);
+      }
       setIsCopied(true);
       setCopyError(null);
       setTimeout(() => setIsCopied(false), 2000);
@@ -349,11 +391,12 @@ function ResultFrame() {
         </div>
         
         <div className="space-y-2">
-          <Button 
-            onClick={handleShare}
-            className="w-full bg-green-600 hover:bg-green-700 h-12"
-            disabled={isCopied}
-          >
+          <div className="flex flex-col gap-2">
+            <Button 
+              onClick={handleShare}
+              className="w-full bg-green-600 hover:bg-green-700 h-12"
+              disabled={isCopied}
+            >
             {isCopied ? (
               <span className="flex items-center gap-2">
                 <CheckIcon className="h-4 w-4" />
