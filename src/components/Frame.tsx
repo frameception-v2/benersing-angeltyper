@@ -156,10 +156,15 @@ function ProcessingFrame() {
   );
 }
 
-function RadarChart({ scores }: { scores: { spray: number; friends: number; concentrated: number } }) {
+function RadarChart({ scores }: { scores: { sprayAndPray: number; friends: number; concentrated: number } }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const [currentScores, setCurrentScores] = useState([0, 0, 0]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const animate = (startTime: number) => {
@@ -284,7 +289,7 @@ function ResultFrame() {
     <div className="w-full h-full flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4" style={{ gridTemplateRows: '1fr auto' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <RadarChart scores={{ spray: 0.8, friends: 0.4, concentrated: 0.6 }} />
+          <RadarChart scores={{ sprayAndPray: 0.8, friends: 0.4, concentrated: 0.6 }} />
           <PersonalityCard
             title="Concentrated Investor"
             description="Deep focus on few deals with significant commitment. Typically leads rounds and takes board seats."
@@ -466,7 +471,9 @@ export default function Frame() {
     >
       <div className="w-full max-w-[400px] aspect-square mx-auto p-4">
         <div className="w-full h-full flex flex-col">
-          {!(typeof window !== 'undefined' && window.location.search.includes('state=')) ? (
+          {!isClient ? (
+            <div>Loading...</div>
+          ) : !window.location.search.includes('state=') ? (
             <EntryFrame />
           ) : window.location.search.includes('state=processing') ? (
             <ProcessingFrame />
