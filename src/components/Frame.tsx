@@ -21,6 +21,8 @@ import { createStore } from "@walletconnect/mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 import { Button } from "~/components/ui/button";
+import { FormMessage } from "~/components/ui/form";
+import { CheckIcon } from "lucide-react";
 
 function ProcessingFrame() {
   const [progress, setProgress] = useState(0);
