@@ -22,6 +22,100 @@ import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
+function ProcessingFrame() {
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+
+  useEffect(() => {
+    const animate = (startTime: number) => {
+      const duration = 8000; // 8 seconds
+      const animateFrame = (timestamp: number) => {
+        const elapsed = timestamp - startTime;
+        const newProgress = Math.min(elapsed / duration, 1);
+        setProgress(newProgress);
+
+        if (newProgress < 1) {
+          animationRef.current = requestAnimationFrame(() => animateFrame(timestamp));
+        }
+      };
+      
+      animationRef.current = requestAnimationFrame(animateFrame);
+    };
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const startTime = performance.now();
+    
+    if (!prefersReducedMotion) {
+      animate(startTime);
+    } else {
+      setProgress(1);
+    }
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
+  const drawProgress = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(canvas.width, canvas.height) * 0.3;
+    const lineWidth = 8;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+
+    // Progress arc
+    const startAngle = -Math.PI / 2;
+    const endAngle = startAngle + (Math.PI * 2 * progress);
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.strokeStyle = '#c026d3';
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }, [progress]);
+
+  useEffect(() => {
+    drawProgress();
+  }, [drawProgress, progress]);
+
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center gap-6">
+      <canvas
+        ref={canvasRef}
+        width={200}
+        height={200}
+        className="w-[100px] h-[100px] sm:w-[150px] sm:h-[150px]"
+      />
+      <div className="text-center space-y-2">
+        <p className="text-lg font-medium">Analyzing your casts</p>
+        <p className="text-sm text-neutral-500">
+          {Math.floor(progress * 100)}% complete
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function EntryFrame() {
   // Session management with TTL validation
   useEffect(() => {
@@ -174,9 +268,7 @@ export default function Frame() {
           {!(typeof window !== 'undefined' && window.location.search.includes('state=processing')) ? (
             <EntryFrame />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <p className="text-lg font-medium">Analyzing your casts...</p>
-            </div>
+            <ProcessingFrame />
           )}
         </div>
       </div>
