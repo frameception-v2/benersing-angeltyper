@@ -49,10 +49,14 @@ function EntryFrame() {
         </h1>
         
         <div className="w-full flex flex-col gap-4">
-          <button 
+          <button
             onClick={handleAnalyze}
-            className="w-full py-4 px-8 bg-purple-600 hover:bg-purple-700 text-white rounded-xl 
-                     transition-all duration-200 hover:scale-105 active:scale-95"
+            className="w-full h-12 py-4 px-8 bg-purple-600 hover:bg-purple-700 text-white rounded-xl 
+                     transition-all duration-500 ease-in-out hover:scale-105 active:scale-95
+                     animate-pulse hover:animate-none focus-visible:outline-none
+                     focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2
+                     focus-visible:ring-offset-purple-600"
+            style={{ minHeight: '48px' }}
           >
             Analyze My Casts
           </button>

@@ -5,7 +5,7 @@ Here's the optimized 20-task checklist following dependencies and implementation
 - [x] 3. Build basic 1:1 aspect ratio FrameContainer component (Prompt 1)
 - [x] 4. Configure NEYNAR_API_KEY in environment variables (Prompt 1)
 - [x] 5. Create EntryFrame component with responsive flex layout (Prompt 2)
-- [ ] 6. Add animated CTA button with 48px touch target (Prompt 2)
+- [x] 6. Add animated CTA button with 48px touch target (Prompt 2)
 - [ ] 7. Implement session ID generation/retrieval in localStorage (Prompt 2)
 - [ ] 8. Set up frame state transitions using URL search params (Prompt 2)
 - [ ] 9. Create CastAnalysisService with Neynar API integration (Prompt 3)
