@@ -172,7 +172,7 @@ function RadarChart({ scores }: { scores: { sprayAndPray: number; friends: numbe
       const animateFrame = (timestamp: number) => {
         const progress = Math.min((timestamp - startTime) / duration, 1);
         setCurrentScores([
-          progress * scores.spray,
+          progress * scores.sprayAndPray,
           progress * scores.friends,
           progress * scores.concentrated
         ]);
@@ -319,11 +319,25 @@ function CardDeck({ archetypes }: { archetypes: Array<{ title: string; descripti
   );
 }
 
+function PersonalityCard({ title, description }: { title: string; description: string }) {
+  return (
+    <Card className="w-full aspect-video">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm">
+        {description}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ResultFrame() {
   const { address } = useAccount();
   const [isCopied, setIsCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [ogImageUrl, setOgImageUrl] = useState<string>('');
+  const [isClient, setIsClient] = useState(false);
 
   const generateOgImage = useCallback(async (archetype: string) => {
     const canvas = document.createElement('canvas');
@@ -413,7 +427,8 @@ function ResultFrame() {
           >
             Follow @hellno for updates
           </Button>
-          {address && (
+        </div>
+        {address && (
             <div className="text-xs text-neutral-500 text-center">
               Verified: {truncateAddress(address)}
             </div>
